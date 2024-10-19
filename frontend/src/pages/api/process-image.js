@@ -15,7 +15,6 @@ async function extractDominantColor(image) {
 }
 
 function getContrastColor(r, g, b) {
-  // Calculate the perceptive luminance (https://www.w3.org/TR/WCAG20/#relativeluminancedef)
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.5 ? 'black' : 'white';
 }
@@ -26,7 +25,6 @@ export default async function handler(req, res) {
   }
 
   const form = new IncomingForm();
-
   form.parse(req, async (err, fields, files) => {
     if (err) {
       console.error('Error parsing form:', err);
@@ -49,27 +47,38 @@ export default async function handler(req, res) {
       const width = metadata.width;
       const height = metadata.height;
 
-      // Calculate font size based on image height
-      const fontSize = Math.floor(height / 20);
+      // Fixed font size of 30px
+      const fontSize = 70;
 
       // Determine text color based on contrast with dominant color
       const textColor = getContrastColor(dominantColor.r, dominantColor.g, dominantColor.b);
 
+      // Create an SVG with centered text
+      const svgText = `
+        <svg width="${width}" height="${height}">
+          <style>
+            .username { 
+              fill: ${textColor}; 
+              font-size: ${fontSize}px; 
+              font-family: "Brush Script MT", "Brush Script Std", "Lucida Calligraphy", "Lucida Handwriting", "Apple Chancery", cursive;
+              font-style: italic;
+            }
+          </style>
+          <text 
+            x="50%" 
+            y="50%" 
+            text-anchor="middle" 
+            dominant-baseline="middle" 
+            class="username">${userName}</text>
+        </svg>
+      `;
+
       const processedImageBuffer = await image
         .composite([
           {
-            input: {
-              text: {
-                text: userName,
-                font: 'Arial',
-                fontSize: fontSize,
-                rgba: true,
-                color: textColor
-              },
-            },
-            gravity: 'south',
-            top: 20,
-            left: 20,
+            input: Buffer.from(svgText),
+            top: 0,
+            left: 0,
           },
         ])
         .toBuffer();
