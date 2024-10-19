@@ -10,6 +10,8 @@ import { http, createConfig } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { MintifyProvider } from "../Context/mintifyContext";
+import Loader from "./Components/Loader";
+import { useState } from "react";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -32,6 +34,9 @@ const wagmiConfig = createConfig({
 });
 
 export default function App({ Component, pageProps }) {
+  const [loading, setLoading] = useState(false);
+
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={wagmiConfig}>
@@ -43,7 +48,10 @@ export default function App({ Component, pageProps }) {
 
             <div className={`${playfair.className} bg-[#17123d]`}>
               <NavBar />
-              <Component {...pageProps} />
+              <>
+              {loading ? <Loader /> :  <Component {...pageProps} />}
+              </>
+             
               <Footer />
             </div>
 
