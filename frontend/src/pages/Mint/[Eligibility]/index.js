@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
-import { coinbaseWallet } from 'wagmi/connectors';
-import { base, baseSepolia } from 'wagmi/chains';
-import { useMintifyContext } from "../../Context/mintifyContext";
-import {useConnect, useAccount, useReadContract} from "wagmi";
+import { useState } from "react";
+import {useAccount, useReadContract} from "wagmi";
 import axios from "axios"; 
 import { parse } from "papaparse";
 import keccak256 from "keccak256";// Keccak hashing function
 import { MerkleTree } from "merkletreejs";
-import { motion } from "framer-motion";
-import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
 
 
 import {
@@ -22,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Eligibility() {
-  const [contractAddress, setContractAddress] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState("");
   const [csvData, setCsvData] = useState(null);
   const [merkleTree, setMerkleTree] = useState(null);
@@ -31,11 +26,7 @@ export default function Eligibility() {
   const [isEligible, setIsEligible] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState(null);
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
-
-  const [isModalLoading, setIsModalLoading] = useState(false);
 
 
   const { data: csvUri, refetch } = useReadContract({
@@ -62,23 +53,17 @@ export default function Eligibility() {
     address: "0x798bb21202a27f0A45806ba3C4D4f87cba3DC259",
     functionName: 'contractToCid',
     args:  [
-      contractAddress
+      address
     ],
     enabled: false
   })
-
-  useEffect(() => {
-    // Check if all required fields are filled
-    const isValid = address && contractAddress;
-    setIsFormValid(isValid);
-  }, [contractAddress]);
 
 
 
   const handleChange = (event) => {
     switch (event.target.name) {
-      case "contractAddress":
-        setContractAddress(event.target.value);
+      case "address":
+        setAddress(event.target.value);
         break;
       default:
         break;
@@ -90,15 +75,6 @@ export default function Eligibility() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    setIsModalLoading(true);
-    setShowModal(true);
-
-    if (!isFormValid) {
-      toast.error("Please fill all required fields before submitting.");
-      return;
-    }
-
-    
 
     try {
 
@@ -106,11 +82,11 @@ export default function Eligibility() {
       console.log("Retrieved CSV URI from contract:", csvUri); 
 
 
-      // if (!csvUri) {
-      //   alert("CSV URI not found for the provided address.");
-      //   setLoading(false);
-      //   return;
-      // }
+      if (!csvUri) {
+        alert("CSV URI not found for the provided address.");
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.get(csvUri);
       console.log("Raw CSV data:", response.data); // Log the raw CSV data
@@ -148,8 +124,8 @@ export default function Eligibility() {
     
 
       setIsEligible(isEligible);
-      // setShowAlert(true);
-      setShowModal(true);
+      setShowAlert(true);
+  
       
     } catch (error) {
       console.error("An error occurred:", error);
@@ -157,21 +133,13 @@ export default function Eligibility() {
       setError(error.message);
       setShowAlert(true);
     
-  
-}  finally {
-  setLoading(false);
-  setIsModalLoading(false);
-}
+  } finally {
+    setLoading(false);
+  }
 
     
 
   }
-
-  const closeModal = () => {
-    setShowModal(false);
-    setError(null);
-    setIsModalLoading(false);
-  };
 
   return (
 
@@ -210,14 +178,13 @@ export default function Eligibility() {
             className="border rounded w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
             id="address"
             type="text"
-            name="contractAddress"
-            value={contractAddress}
+            name="address"
+            value={address}
             onChange={handleChange}
             placeholder="Enter your mint hash"
           />
         </div>
-        <motion.div whileHover={isFormValid ? { scale: 1.1 } : {}}
-  transition={{ type: "spring", stiffness: 400, damping: 10 }} className={`px-5 py-2.5 rounded-full justify-center items-center gap-2 inline-flex ${isFormValid ? 'bg-[#8080d7]' : 'bg-gray-400 cursor-not-allowed'}`}>
+        <div className="bg-[#8080d7] px-5 py-2.5 rounded-full justify-center items-center gap-2 inline-flex">
           <button
             type="submit"
             className="text-white cursor-pointer w-full py-2 text-lg font-semibold"
@@ -225,69 +192,30 @@ export default function Eligibility() {
           >
             {loading ? "Checking..pls wait" : "Check Eligibility"}
           </button>
-        </motion.div>
+        </div>
       </form>
 
 
-      
+      <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{error ? "Error" : "Eligibility Status"}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {error ? error : (
+                  isEligible
+                    ? "Congratulations! You are eligible for minting."
+                    : "Sorry, you are not eligible for minting at this time."
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowAlert(false)}>Close</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       
     </div>
-
-    {showModal && (
-        <div className="fixed inset-0 bg-[#131c61] bg-opacity-80 flex items-center justify-center">
-          <div className="bg-[#0c0e28] border border-white p-8 rounded-lg  max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-end">
-              <button onClick={closeModal} disabled={isModalLoading}>
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            {isModalLoading ? (
-              <div className="text-center">
-                <Loader className="h-12 w-12 animate-spin text-blue-500 mx-auto mb-4" />
-                <p className="text-lg font-medium">Eligibility checking in progress...</p>
-                <p className="text-sm text-gray-400 mt-2">Please wait while we process your request.</p>
-              </div>
-            ) : error ? (
-              <>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                  <AlertTriangle className="h-6 w-6 text-red-600" />
-                </div>
-                <h3 className="text-lg font-medium mb-2">Unfortunately, you are not eligible for this NFT at this time</h3>
-                <p className="text-sm text-gray-400 mb-4">{error}</p>
-              </>
-            ) : isEligible ? (
-              <>
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
-                  <Check className="h-6 w-6 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-medium mb-2">Congratulations, you are eligible</h3>
-                <p className="text-sm text-gray-400 mb-4">
-                Claim Your Certificate
-                </p>
-                <div className="grid  bg-navy-700 rounded px-3 py-2 mb-4">
-                  <span className="text-sm py-3 text-white">Mint Hash: {mintHash}</span>
-                  <button
-                    onClick={copyToClipboard}
-                    className="focus:outline-none"
-                    aria-label="Copy mint hash"
-                  >
-                    {isCopied ? (
-                      <Check className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <Copy className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-                {/* {isCopied && (
-                  <p className="text-sm text-green-500 mt-2">Copied to clipboard!</p>
-                )} */}
-              </>
-            ) : null}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileIcon } from "@radix-ui/react-icons";
 import Papa from "papaparse";
 import { pinata } from "@/Constants/pinata";
@@ -8,12 +8,15 @@ import { coinbaseWallet } from 'wagmi/connectors';
 import { base, baseSepolia } from 'wagmi/chains';
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { useMintifyContext } from "../../Context/mintifyContext";
+import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
+import { ToastContainer, toast } from 'react-toastify';
 
 
 export default function Mint() {
   const {connectAsync } = useConnect();
   const { address } = useMintifyContext();
   const { writeContractAsync } = useWriteContract();
+
 
   const [info, setInfo] = useState("");
   const [tag, setTag] = useState("");
@@ -23,10 +26,34 @@ export default function Mint() {
   const [csvFileName, setCsvFileName] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [merkleRoot, setMerkleRoot] = useState(null); // To store the generated Merkle root
-
+  const [showModal, setShowModal] = useState(false);
+  const [isCopied, setIsCopied] = useState(false)
+  const [mintHash, setMintHash] = useState("");
+  const [error, setError] = useState(null);
+  const [isFormValid, setIsFormValid] = useState(false);
   
 
-  
+  const [isModalLoading, setIsModalLoading] = useState(false);
+
+
+  useEffect(() => {
+    // Check if all required fields are filled
+    const isValid = imageFile && csvFile && tag.trim() && info.trim();
+    setIsFormValid(isValid);
+  }, [imageFile, csvFile, tag, info]);
+
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(mintHash)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000) // Reset copied state after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+    }
+  }
+
+
   
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -111,12 +138,24 @@ export default function Mint() {
 const handleSubmit = async (event) => {
   event.preventDefault();
   setLoading(true);
-  
+  setError(null);
+  setMintHash("");
+  setIsModalLoading(true);
+  setShowModal(true);
+
   console.log("Form submitted with the following details:");
   console.log("Image file:", fileName);
   console.log("CSV file:", csvFileName);
   console.log("Tag:", tag);
   console.log("Community-specific information:", info);
+
+
+  if (!isFormValid) {
+    toast.error("Please fill all required fields before submitting.");
+    return;
+  }
+
+  
 
   try {
 
@@ -248,15 +287,30 @@ const handleSubmit = async (event) => {
     })
 
     console.log("data", data)
-    alert(`Transaction submitted: ${data}`); //alert of the tx hash
+    setMintHash(data);
+    setShowModal(true);
+    // alert(`Transaction submitted: ${data}`); //alert of the tx hash
 
 
   } catch (error) {
     console.error("Error processing and uploading data:", error);
+    setError(error.message || "An error occurred during the minting process.");
+    setShowModal(true);
+  }  finally {
+    setLoading(false);
+    setIsModalLoading(false);
   }
 
   setLoading(false);
 };
+
+const closeModal = () => {
+  setShowModal(false);
+  setError(null);
+  setMintHash("");
+  setIsModalLoading(false);
+};
+
 
 
   return (
@@ -400,18 +454,76 @@ const handleSubmit = async (event) => {
             />
           </div>
 
-          <motion.div whileHover={{ scale: 1.1 }}
-  transition={{ type: "spring", stiffness: 400, damping: 10 }} className="bg-[#8080d7] px-5 py-2.5 rounded-full justify-center items-center gap-2 inline-flex">
+          <motion.div  whileHover={isFormValid ? { scale: 1.1 } : {}}
+  transition={{ type: "spring", stiffness: 400, damping: 10 }} className={`px-5 py-2.5 rounded-full justify-center items-center gap-2 inline-flex ${isFormValid ? 'bg-[#8080d7]' : 'bg-gray-400 cursor-not-allowed'}`}>
             <button
               type="submit"
               className="text-white cursor-pointer w-full py-2 text-lg font-semibold"
-              disabled={loading}
+              disabled={loading || !isFormValid}
             >
               {loading ? "Minting..pls wait" : "Mint"}
             </button>
           </motion.div>
         </form>
       </div>
+
+      
+
+      {showModal && (
+        <div className="fixed inset-0 bg-[#131c61] bg-opacity-80 flex items-center justify-center">
+          <div className="bg-[#0c0e28] border border-white p-8 rounded-lg  max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-end">
+              <button onClick={closeModal} disabled={isModalLoading}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            {isModalLoading ? (
+              <div className="text-center">
+                <Loader className="h-12 w-12 animate-spin text-blue-500 mx-auto mb-4" />
+                <p className="text-lg font-medium">Minting in progress...</p>
+                <p className="text-sm text-gray-400 mt-2">Please wait while we process your request.</p>
+              </div>
+            ) : error ? (
+              <>
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">Error</h3>
+                <p className="text-sm text-gray-400 mb-4">{error}</p>
+              </>
+            ) : mintHash ? (
+              <>
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                  <Check className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">Congratulations, mint successful</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Copy the mint hash below and share with the recipients for claiming
+                </p>
+                <div className="grid  bg-navy-700 rounded px-3 py-2 mb-4">
+                  <span className="text-sm py-3 text-white">Mint Hash: {mintHash}</span>
+                  <button
+                    onClick={copyToClipboard}
+                    className="focus:outline-none"
+                    aria-label="Copy mint hash"
+                  >
+                    {isCopied ? (
+                      <Check className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Copy className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {isCopied && (
+                  <p className="text-sm text-green-500 mt-2">Copied to clipboard!</p>
+                )}
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
+       <ToastContainer />
     </div>
   );
 }

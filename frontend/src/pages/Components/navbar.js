@@ -74,7 +74,7 @@ export default function NavBar() {
             
         </div>
         <div className="hidden sm:grid">
-          <WalletDefault />
+          <WalletDefault  withWalletAggregator={true}/>
         </div>
         <div className="md:hidden mb-4 ">
           <button className="text-dark" onClick={toggleMenu}>
