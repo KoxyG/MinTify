@@ -182,12 +182,20 @@ const handleSubmit = async (event) => {
     const updatedCsv = [];
     for (let i = 0; i < processedCsv.length; i++) {
       const row = processedCsv[i];
+
+
+      const processedImageBuffer = await processImage(imageFile, row.Name);
+
+      // Upload the processed image to IPFS
+      const processedImageFile = new File([processedImageBuffer], `${row.Name}_processed.png`, { type: 'image/png' });
+      const processedImageResponse = await pinata.upload.file(processedImageFile);
+      const processedImageUrl = `https://ipfs.io/ipfs/${processedImageResponse.IpfsHash}`;
   
       // Create metadata for each recipient
       const metadata = {
         name: `${row.Name}'s NFT Certificate`,  // NFT title
         description: `Award for ${row.Name}`,    // Description of the NFT
-        image: imageUrl,  // IPFS URL for the image
+        image: processedImageUrl,  // IPFS URL for the image
         attributes: [     // Optional: include attributes
           {
             trait_type: "Recipient Name",
@@ -307,6 +315,23 @@ const handleSubmit = async (event) => {
   }
 
   setLoading(false);
+};
+
+const processImage = async (file, userName) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('userName', userName);
+
+  const response = await fetch('/api/process-image', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to process image');
+  }
+
+  return await response.arrayBuffer();
 };
 
 const closeModal = () => {

@@ -63,13 +63,13 @@ export default function NavBar() {
         </div>
         <div className="hidden sm:text-[#b2b0c6] sm:flex justify-center cursor-pointer gap-5">
           <Link href="/">
-            <h1 className="hover:text-white" onClick={() => handleNavClick('home')}>Home</h1>
+            <h1 className="hover:text-white hover:underline" onClick={() => handleNavClick('home')}>Home</h1>
           </Link>
           <Link href="/Dashboard">
-            <h1 className="hover:text-white" onClick={ () => handleButtonDashboard()}>Dashboard</h1>
+            <h1 className="hover:text-white hover:underline" onClick={ () => handleButtonDashboard()}>Dashboard</h1>
           </Link>
           
-            <h1 className="hover:text-white" onClick={() => handleNavClick('features')}>Features</h1> 
+            <h1 className="hover:text-white hover:underline" onClick={() => handleNavClick('features')}>Features</h1> 
   
             
         </div>
@@ -89,15 +89,15 @@ export default function NavBar() {
                    right-0 bottom-0 left-0 flex flex-col
                    items-center gap-6 justify-center"
                 >
-                  <h3 className="text-white text-sm font-normal leading-none hover:text-white">
+                  <h3 className="text-white text-sm font-normal leading-none hover:text-white hover:underline">
                     <Link href="/">Home</Link>
                   </h3>
-                  <h3 className="text-white text-sm font-normal leading-none hover:text-white">
+                  <h3 className="text-white text-sm font-normal leading-none hover:text-white hover:underline">
                     <Link href="/Dashboard">
                       <button>Dashboard</button>
                     </Link>
                   </h3>
-                  <h3 className="text-white text-sm font-normal leading-none hover:text-white">
+                  <h3 className="text-white text-sm font-normal leading-none hover:text-white hover:underline">
                     <button onClick={() => handleNavClick('features')}>Features</button>
                   </h3>
 

@@ -9,11 +9,11 @@ export default function Footer() {
           
           
           <div className="cursor-pointer sm:flex sm:space-x-6 space-y-6 sm:space-y-0 font-semibold sm:text-[16px]">
-            <h1>Contact Us</h1>
-            <h1>Privacy Policy</h1>
-            <h1>FAQs</h1>
+            <h1 className="hover:underline">Contact Us</h1>
+            <h1 className="hover:underline">Privacy Policy</h1>
+            <h1 className="hover:underline">FAQs</h1>
             <Link href="/AboutUs">
-            <h1 h>About us</h1>
+            <h1 className="hover:underline">About us</h1>
             </Link>
           </div>
 
