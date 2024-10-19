@@ -108,7 +108,7 @@ export default function Hero() {
               ease: [0.17, 0.67, 0.83, 0.67],
               duration: 2,
               x: { duration: 1 },
-            }} className="animate-bounce">
+            }} className="pb-[40px]">
             <Image src="/certificate.png" alt="hero" width={880} height={326} />
           </motion.div>
         </div>

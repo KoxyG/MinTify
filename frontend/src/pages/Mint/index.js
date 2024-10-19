@@ -289,6 +289,11 @@ const handleSubmit = async (event) => {
     console.log("data", data)
     setMintHash(data);
     setShowModal(true);
+    setCsvFile("");
+    setFileName("");
+    setImageFile(null);
+    setInfo("");
+    setTag("");
     // alert(`Transaction submitted: ${data}`); //alert of the tx hash
 
 
