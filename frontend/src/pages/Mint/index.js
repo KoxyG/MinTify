@@ -10,6 +10,7 @@ import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { useMintifyContext } from "../../Context/mintifyContext";
 import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
 import { ToastContainer, toast } from 'react-toastify';
+import { API_URL } from "@/Constants/utils";
 
 
 export default function Mint() {
@@ -62,6 +63,8 @@ export default function Mint() {
       setImageFile(file);
     }
   };
+
+  
 
 
   const handleCsvChange = (event) => {
@@ -322,7 +325,7 @@ const processImage = async (file, userName) => {
   formData.append('file', file);
   formData.append('userName', userName);
 
-  const response = await fetch('/api/process-image', {
+  const response = await fetch(`${API_URL}/api/process-image`, {
     method: 'POST',
     body: formData,
   });
