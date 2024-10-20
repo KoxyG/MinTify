@@ -2,13 +2,16 @@ import { useState } from "react";
 import { coinbaseWallet } from 'wagmi/connectors';
 import { base, baseSepolia } from 'wagmi/chains';
 import { useMintifyContext } from "../../Context/mintifyContext";
-import {useConnect, useAccount, useReadContract} from "wagmi";
+import {useConnect, useAccount, useReadContract, useWriteContract} from "wagmi";
 import axios from "axios"; 
 import { parse } from "papaparse";
 import keccak256 from "keccak256";// Keccak hashing function
 import { MerkleTree } from "merkletreejs";
+import { ethers } from "ethers";
+
 
 export default function Eligibility() {
+  const { writeContractAsync } = useWriteContract();
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState("");
   const [csvData, setCsvData] = useState(null);
@@ -105,19 +108,83 @@ export default function Eligibility() {
       const proof = merkleTree.getHexProof(leaf);
   
       console.log("Generated Proof:", proof);
+
   
       const isEligible = merkleTree.verify(proof, leaf, root);
       console.log("Is Eligible:", isEligible);
   
       if (isEligible) {
         alert("You are eligible!");
+
+         // Find the index of the entry matching the connected wallet address
+         const userIndex = parsedData.findIndex(
+          (entry) =>
+            entry["Wallet Address"]?.toLowerCase().trim() ===
+            userAddress.toLowerCase()
+        );
+        console.log(`User found at index: ${userIndex}`);
+  
+        // Find the entry matching the connected wallet address
+        const userEntry = parsedData.find(
+          (entry) =>
+            entry["Wallet Address"]?.toLowerCase().trim() ===
+            userAddress.toLowerCase()
+        );
+  
+        if (userEntry && userEntry["TokenURI"]) {
+          const tokenUri = userEntry["TokenURI"];
+          console.log("Token URI for connected wallet:", tokenUri);
+  
+          alert(`Your Token URI: ${tokenUri}`);
+
+     
+
+          const data = await writeContractAsync({
+            chainId: baseSepolia.id,
+            address: address,
+            functionName: 'mint',
+            abi: [{
+              "inputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "proof",
+                  "type": "bytes32[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "index",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "string",
+                  "name": "uri",
+                  "type": "string"
+                }
+              ],
+              "name": "mint",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }],
+          args: [
+            formattedProof,     
+            userIndex,
+            tokenUri   
+          ],
+          })
+
+          console.log("Transaction hash:", data);
+
+
+        } else {
+          alert("Token URI not found for your address.");
+        }
+  
       } else {
         alert("You are not eligible.");
       }
-
-
-      
-    } catch (error) {
+    }
+    catch (error) {
       console.error("An error occurred:", error);
       setLoading(false);
     }
