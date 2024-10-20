@@ -60,7 +60,7 @@ export default async function handler(req, res) {
             .username { 
               fill: ${textColor}; 
               font-size: ${fontSize}px; 
-              font-family: "Brush Script MT", "Brush Script Std", "Lucida Calligraphy", "Lucida Handwriting", "Apple Chancery", cursive;
+              font-family: Arial, Helvetica, sans-serif;
               font-style: italic;
             }
           </style>
