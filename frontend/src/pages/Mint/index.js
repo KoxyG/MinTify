@@ -322,7 +322,7 @@ const processImage = async (file, userName) => {
   formData.append('file', file);
   formData.append('userName', userName);
 
-  const response = await fetch('/api/process-image', {
+  const response = await fetch('https://min-tify.vercel.app/api/process-image', {
     method: 'POST',
     body: formData,
   });
