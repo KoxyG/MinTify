@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { coinbaseWallet } from 'wagmi/connectors';
 import { base, baseSepolia } from 'wagmi/chains';
 import { useMintifyContext } from "../../Context/mintifyContext";
-import {useConnect, useAccount, useReadContract} from "wagmi";
+import {useConnect, useAccount, useReadContract,useWriteContract} from "wagmi";
 import axios from "axios"; 
 import { parse } from "papaparse";
-import keccak256 from "keccak256";// Keccak hashing function
-import { MerkleTree } from "merkletreejs";
+import toast from 'react-toastify';
 import { motion } from "framer-motion";
 import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
+import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 
 
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Eligibility() {
+   const { writeContractAsync } = useWriteContract();
   const [contractAddress, setContractAddress] = useState("");
   const [loading, setLoading] = useState("");
   const [csvData, setCsvData] = useState(null);
@@ -33,6 +34,7 @@ export default function Eligibility() {
   const [error, setError] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
   const [showModal, setShowModal] = useState(false);
+   const [address, setAddress] = useState("");
 
 
   const [isModalLoading, setIsModalLoading] = useState(false);
@@ -93,10 +95,10 @@ export default function Eligibility() {
     setIsModalLoading(true);
     setShowModal(true);
 
-    if (!isFormValid) {
-      toast.error("Please fill all required fields before submitting.");
-      return;
-    }
+    // if (!isFormValid) {
+    //   toast.error("Please fill all required fields before submitting.");
+    //   return;
+    // }
 
     
 
@@ -106,51 +108,106 @@ export default function Eligibility() {
       console.log("Retrieved CSV URI from contract:", csvUri); 
 
 
-      // if (!csvUri) {
-      //   alert("CSV URI not found for the provided address.");
-      //   setLoading(false);
-      //   return;
-      // }
+      if (!csvUri) {
+        setError("CSV data not found in the contract.");
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.get(csvUri);
       console.log("Raw CSV data:", response.data); // Log the raw CSV data
 
-
       const parsedData = parse(response.data, { header: true }).data;
-      console.log("Parsed CSV data:", parsedData); // Log parsed CSV
+      console.log("Parsed CSV data:", parsedData);
 
       setCsvData(parsedData);
-      // alert("CSV data fetched successfully.");
 
+      const formattedValues = parsedData.map((entry, index) => [
+        entry["Wallet Address"].toLowerCase(),
+        index.toString(),
+      ]);
+        const merkleTree = StandardMerkleTree.of(formattedValues, [
+        "address",
+        "uint256",
+      ]);
+      const root = merkleTree.root;
 
-      const addresses = parsedData.map((entry) =>
-        entry["Wallet Address"].toLowerCase()
-      );
-  
-      // Generate Merkle Tree
-      const leaves = addresses.map((addr) =>
-        keccak256(addr).toString("hex")
-      );
-      const merkleTree = new MerkleTree(leaves, keccak256, { sortPairs: true });
-      const root = merkleTree.getHexRoot();
-  
       console.log("Merkle Root:", root);
-  
-      // Generate proof for the connected wallet address
-      const leaf = keccak256(userAddress.toLowerCase()).toString("hex");
-      const proof = merkleTree.getHexProof(leaf);
-  
-      console.log("Generated Proof:", proof);
-  
-      const isEligible = merkleTree.verify(proof, leaf, root);
-      console.log("Is Eligible:", isEligible);
 
+      // Find the user's entry and index
+      const userIndex = formattedValues.findIndex(
+        ([address]) => address === userAddress.toLowerCase()
+      );
+
+      if (userIndex === -1) {
+        setError("Your address is not in the list of eligible addresses.");
+        setLoading(false);
+        return;
+      }
+
+      // Generate proof for the connected wallet address
+      const proof = merkleTree.getProof(userIndex);
+
+      // console.log("Generated Proof:", proof);
+
+      const isEligible = merkleTree.verify(userIndex, proof);
+      // console.log("Is Eligible:", isEligible);
+
+      if (isEligible) {
+        
+
+        // Find the entry matching the connected wallet address
+        const userEntry = parsedData[userIndex];
     
 
       setIsEligible(isEligible);
       // setShowAlert(true);
       setShowModal(true);
-      
+      if (userEntry && userEntry["TokenURI"]) {
+          const tokenUri = userEntry["TokenURI"];
+          console.log("Token URI for connected wallet:", tokenUri);
+
+          alert(`Your Token URI: ${tokenUri}`);
+
+          const data = await writeContractAsync({
+            chainId: baseSepolia.id,
+            address: contractAddress,
+            functionName: "mint",
+            abi: [
+              {
+                inputs: [
+                  {
+                    internalType: "bytes32[]",
+                    name: "proof",
+                    type: "bytes32[]",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "index",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "string",
+                    name: "uri",
+                    type: "string",
+                  },
+                ],
+                name: "mint",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            args: [proof, userIndex, tokenUri],
+          });
+
+          console.log("Transaction hash:", data);
+        } else {
+          setError("Token URI not found for your address.");
+        }
+      } else {
+        setError("You are not eligible.");
+      }
     } catch (error) {
       console.error("An error occurred:", error);
       setLoading(false);
@@ -258,7 +315,7 @@ export default function Eligibility() {
                 <p className="text-sm text-gray-400 mb-4">{error}</p>
               </>
             ) : isEligible ? (
-              <>
+              <>{/*
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                   <Check className="h-6 w-6 text-blue-600" />
                 </div>
@@ -279,7 +336,8 @@ export default function Eligibility() {
                       <Copy className="w-5 h-5" />
                     )}
                   </button>
-                </div>
+                </div> */}
+
                 {/* {isCopied && (
                   <p className="text-sm text-green-500 mt-2">Copied to clipboard!</p>
                 )} */}
