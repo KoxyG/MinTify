@@ -211,16 +211,16 @@ const handleSubmit = async (event) => {
         ]
       };
 
-      // Upload the metadata to Pinata
-      const jsonData = {
-        pinataContent: metadata,
-        pinataMetadata: {
-          name: `${row.Name}-nft-metadata`,
-          description: `Metadata for ${row.Name}'s NFT`,
-        },
-      };
+      // // Upload the metadata to Pinata
+      // const jsonData = {
+      //   pinataContent: metadata,
+      //   pinataMetadata: {
+      //     name: `${row.Name}-nft-metadata`,
+      //     description: `Metadata for ${row.Name}'s NFT`,
+      //   },
+      // };
 
-      const jsonUploadResult = await pinata.upload.json(jsonData);
+      const jsonUploadResult = await pinata.upload.json(metadata);
       const metadataCID = jsonUploadResult.IpfsHash;
       const tokenURI = `https://ipfs.io/ipfs/${metadataCID}`;
   
