@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FileIcon } from "@radix-ui/react-icons";
 import Papa from "papaparse";
 import { pinata } from "@/Constants/pinata";
-import {useConnect, useAccount, useWriteContract} from "wagmi";
+import {useConnect, useAccount, useWriteContract } from "wagmi";
 import { motion } from "framer-motion";
 import { coinbaseWallet } from 'wagmi/connectors';
 import { base, baseSepolia } from 'wagmi/chains';
@@ -10,6 +10,8 @@ import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { useMintifyContext } from "../../Context/mintifyContext";
 import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
 import { ToastContainer, toast } from 'react-toastify';
+
+const { ethers } = require("ethers");
 
 
 export default function Mint() {
@@ -29,12 +31,14 @@ export default function Mint() {
   const [showModal, setShowModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false)
   const [mintHash, setMintHash] = useState("");
+  const [NFTCA, setNFTCa] = useState("");
   const [error, setError] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
   
 
   const [isModalLoading, setIsModalLoading] = useState(false);
 
+  
 
   useEffect(() => {
     // Check if all required fields are filled
@@ -43,9 +47,14 @@ export default function Mint() {
   }, [imageFile, csvFile, tag, info]);
 
 
+
+ 
+
+
+ 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(mintHash)
+      await navigator.clipboard.writeText(NFTCA)
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000) // Reset copied state after 2 seconds
     } catch (err) {
@@ -120,6 +129,8 @@ export default function Mint() {
     });
   };
 
+
+  
 
   const generateMerkleRoot = (values) => {
      const formattedValues = values
@@ -217,7 +228,7 @@ const handleSubmit = async (event) => {
         },
       };
 
-      const jsonUploadResult = await pinata.upload.json(jsonData);
+      const jsonUploadResult = await pinata.upload.json(metadata);
       const metadataCID = jsonUploadResult.IpfsHash;
       const tokenURI = `https://ipfs.io/ipfs/${metadataCID}`;
   
@@ -294,6 +305,9 @@ const handleSubmit = async (event) => {
     ],
     })
 
+
+
+
     console.log("data", data)
     setMintHash(data);
     setShowModal(true);
@@ -304,7 +318,7 @@ const handleSubmit = async (event) => {
     setTag("");
     // alert(`Transaction submitted: ${data}`); //alert of the tx hash
 
-
+getTransactionLogs( data);
   } catch (error) {
     console.error("Error processing and uploading data:", error);
     setError(error.message || "An error occurred during the minting process.");
@@ -314,8 +328,61 @@ const handleSubmit = async (event) => {
     setIsModalLoading(false);
   }
 
-  setLoading(false);
 };
+
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
+
+// Connect to the Alchemy Sepolia endpoint
+const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY);
+
+async function getTransactionLogs(hash) {
+  const txHash = hash;
+
+  try {
+    await delay(8000); // 8 sec for tx to mined 
+    
+    // Fetch the transaction receipt
+    const receipt = await provider.getTransactionReceipt(txHash);
+
+    if (receipt) {
+      
+
+      // Fetch logs from the receipt
+      const logs = receipt.logs;
+
+      // Iterate through the logs
+      logs.forEach(log => {
+        
+
+        // Extract topics and remove extra padding (leading zeros)
+        const cleanedTopics = log.topics.map(topic => topic.replace(/^0x0+/, '0x'));
+
+        // Log the cleaned topics and their indices
+        cleanedTopics.forEach((topic, index) => {
+          if (index == 1){
+            console.log(`Topic ${index}: ${topic}`); // koxy here is the CA
+            setNFTCa(topic)
+          }
+        });
+
+      
+      });
+    } else {
+      //console.log('Transaction receipt not found. It may not have been mined yet.');
+    }
+  } catch (error) {
+   // console.error('Error fetching transaction logs:', error);
+  }
+}
+
+
+
+
 
 const processImage = async (file, userName) => {
   const formData = new FormData();
@@ -522,17 +589,17 @@ const closeModal = () => {
                 <h3 className="text-lg font-medium mb-2">Error</h3>
                 <p className="text-sm text-gray-400 mb-4">{error}</p>
               </>
-            ) : mintHash ? (
+            ) : NFTCA ? (
               <>
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                   <Check className="h-6 w-6 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-medium mb-2">Congratulations, mint successful</h3>
                 <p className="text-sm text-gray-400 mb-4">
-                  Copy the mint hash below and share with the recipients for claiming
+                  Copy the NFT CA below and share with the recipients for claiming
                 </p>
                 <div className="grid  bg-navy-700 rounded px-3 py-2 mb-4">
-                  <span className="text-sm py-3 text-white">Mint Hash: {mintHash}</span>
+                  <span className="text-sm py-3 text-white"> NFT CA: {NFTCA}</span>
                   <button
                     onClick={copyToClipboard}
                     className="focus:outline-none"

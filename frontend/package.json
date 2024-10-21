@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
     "formidable": "^3.5.2",
     "framer-motion": "^11.11.9",
     "keccak256": "^1.0.6",

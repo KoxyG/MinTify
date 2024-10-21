@@ -9,7 +9,7 @@ import toast from 'react-toastify';
 import { motion } from "framer-motion";
 import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
-
+const { ethers } = require("ethers");
 
 import {
   AlertDialog,
@@ -35,7 +35,9 @@ export default function Eligibility() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [showModal, setShowModal] = useState(false);
    const [address, setAddress] = useState("");
-
+ const [NFTCA, setNFTCa] = useState("");
+ const [tokenID, setTokenID] = useState("");
+ const [isCopied, setIsCopied] = useState(false)
 
   const [isModalLoading, setIsModalLoading] = useState(false);
 
@@ -75,7 +77,61 @@ export default function Eligibility() {
     setIsFormValid(isValid);
   }, [contractAddress]);
 
+// Connect to the Alchemy Sepolia endpoint
+const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY);
 
+async function getTransactionLogs(hash) {
+  const txHash = hash;
+
+  try {
+    await delay(8000); // 8 sec for tx to mined 
+    
+    // Fetch the transaction receipt
+    const receipt = await provider.getTransactionReceipt(txHash);
+
+    if (receipt) {
+      
+
+      // Fetch logs from the receipt
+      const logs = receipt.logs;
+
+      // Iterate through the logs
+      logs.forEach(log => {
+        
+
+        // Extract topics and remove extra padding (leading zeros)
+        const cleanedTopics = log.topics.map(topic => topic.replace(/^0x0+/, '0x'));
+
+        // Log the cleaned topics and their indices
+        cleanedTopics.forEach((topic, index) => {
+          if (index == 1){
+            console.log(`Topic ${index}: ${topic}`); 
+            setNFTCa(topic)
+          }else if (index == 3){
+            console.log(`Topic ${index}: ${topic}`); 
+            setTokenID(topic)
+          }                                 
+        });
+
+      
+      });
+    } else {
+      //console.log('Transaction receipt not found. It may not have been mined yet.');
+    }
+  } catch (error) {
+   // console.error('Error fetching transaction logs:', error);
+  }
+}
+
+const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(`https://testnets.opensea.io/${NFTCA}/${tokenID}`)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000) // Reset copied state after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+    }
+  }
 
   const handleChange = (event) => {
     switch (event.target.name) {
@@ -200,7 +256,7 @@ export default function Eligibility() {
             ],
             args: [proof, userIndex, tokenUri],
           });
-
+getTransactionLogs(data)
           console.log("Transaction hash:", data);
         } else {
           setError("Token URI not found for your address.");
@@ -315,7 +371,7 @@ export default function Eligibility() {
                 <p className="text-sm text-gray-400 mb-4">{error}</p>
               </>
             ) : isEligible ? (
-              <>{/*
+              <>
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                   <Check className="h-6 w-6 text-blue-600" />
                 </div>
@@ -324,7 +380,7 @@ export default function Eligibility() {
                 Claim Your Certificate
                 </p>
                 <div className="grid  bg-navy-700 rounded px-3 py-2 mb-4">
-                  <span className="text-sm py-3 text-white">Mint Hash: {mintHash}</span>
+                  <span className="text-sm py-3 text-white">Mint Hash: {`https://testnets.opensea.io/${NFTCA}/${tokenID}`}</span>
                   <button
                     onClick={copyToClipboard}
                     className="focus:outline-none"
@@ -336,11 +392,11 @@ export default function Eligibility() {
                       <Copy className="w-5 h-5" />
                     )}
                   </button>
-                </div> */}
+                </div> 
 
-                {/* {isCopied && (
+                {isCopied && (
                   <p className="text-sm text-green-500 mt-2">Copied to clipboard!</p>
-                )} */}
+                )}
               </>
             ) : null}
           </div>
