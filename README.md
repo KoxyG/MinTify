@@ -1,22 +1,15 @@
-# MINTIFY: Empowering Communities, Celebrating Achievements!
+# MINTIFY: ERADICATING POVERTY WITH BLOCKCHAIN TECHNOLOGY THROUGH EDUCATION AND EMPOWERMENT
 
-MINTIFY is an innovative platform that leverages blockchain technology to provide community leaders, event organizers, and institutions with an easy way to mint certificates, awards, and event tickets as NFTs. The platform simplifies the process of issuing digital credentials, helping users to reward achievements, recognize milestones, and ensure the authenticity of awards.
-
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [User Workflow](#user-workflow)
-- [Tools & Technology](#tools--technology)
-- [Problem Addressed](#problem-addressed)
-- [Leveraging Blockchain Technology](#leveraging-blockchain-technology)
-- [Links](#links)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
+The right knowledge has the power to eradicate poverty, and the right education and empowerment gives access to the right knowledge. 
 
 ## Project Overview
-Many community and project leaders face challenges when it comes to issuing certificates, awards, event tickets, and other digital assets at scale. This process is often costly, time-consuming, and resource-intensive, particularly for Web3 and decentralized communities, where issuing credentials for hundreds or thousands of members can be inefficient. At Women In DeFi, for example, the cost and complexity of issuing certificates after completing training programs is a recurring issue which has now become a major concern for the community leaders. However, that era has ended as we have now created a thoughtful, innovative, and creative solution to this problem.
+Imagine a world where educational and empowerment resources can be minted as NFTs and claimed by anyone at zero cost through the power of blockchain technology. Economic barriers no longer limit individuals' potential to learn, grow, and be celebrated for their achievements. A world where education and empowerment are accessible and affordable, regardless of financial or social constraints. This is the world MINTIFY has created—a world where poverty does not exist. MINTIFY is a decentralised platform developed to eliminate poverty by providing affordable access to quality education that exposes underserved communities and individuals to the right information and skills needed to create financial fortune and thrive—especially in this era where technology has changed the game.
 
-MINTIFY is a decentralized platform that offers a streamlined, on-chain solution for creating and distributing certificates, awards, and event tickets as NFTs. By using our platform, community owners, project leaders, builders, founders, and managers can mint NFTs in the form of digital certificates, tickets, or awards, and easily distribute them efficiently to their members. By leveraging blockchain technology, Mintify ensures that digital credentials are tamper-proof and easily verifiable.
+Through strategic partnerships with academic institutions, NGOs, community leaders, and nonprofit organisations, Mintify enables the issuance of academic courses, certificates, degrees, awards, and community recognitions. These can be minted as NFTs by the issuing bodies on the Mintify platform. With a streamlined, on-chain process, Mintify allows for bulk minting and distribution of these digital assets at a fraction of traditional costs—more than 500% more affordable.
+
+On Mintify, issuing bodies can access the "MINT Asset" section to upload pre-designed courses, certificates, awards, or other recognitions in bulk. Recipients connect their wallets and visit the "Claim Asset" section, where they can verify eligibility by entering their wallet address. If eligible, they are guided through a few simple steps to claim their digital asset, whether it be a course completion certificate or a community award. If not eligible, they are prompted to check back in the future.
+
+MINTIFY is more than just a platform; it is a gateway to financial fortune.
 
 ## Features
 - **Seamless Certificate, Award, and Ticket Minting**: MINTIFY allows users to create and mint certificates, awards, and tickets in bulk using a CSV upload system. This removes the manual effort involved in creating digital assets individually.
@@ -32,23 +25,23 @@ MINTIFY is a decentralized platform that offers a streamlined, on-chain solution
 ## MINTIFY Workflow
 ### How It Works:
 
-#### For Project/Community Owners:
-1. Visit the platform and connect your Coinbase wallet.
-2. Locate and click on the “MINT NFT” button in the hero section or menu.
-3. Upload the image to mint as an NFT (e.g., certificate design, event ticket, or digital award).
-4. Upload a CSV file with recipients' details:
-   - Full name (First Name, Last Name)
-   - Wallet address
-5. Submit the image and CSV file to generate NFTs for each recipient.
-6. You’ll receive a Mint Hash. Share it with your community members/recipients to claim their NFT rewards.
+#### For Educational Institutions, NGO’s, Non Profits, Project/Community Owners:
+Step 1: Visit the MINTIFY platform and connect your ………. wallet.
+Step 2: Locate and click on the “MINT ASSET’ button in the hero section or menu.
+Step 3: Upload the Asset you want to mint as an NFT  e.g A new course, Certificates, digital award etc 
+Step 4: Upload a CSV file with recipients' details:
+Full name (First Name, Last Name)
+Wallet address
+Step 5: Submit the asset and CSV file to generate NFTs for each recipient.
+Step 6: You’ll Receive a  Mint Hash. Share it with your community members/recipients to claim their Assets as NFTs. 
 
 #### For Recipients:
-1. Visit the platform and connect your Coinbase Wallet.
-2. Locate and click on the “Check Eligibility” button in the hero section or menu.
-3. Paste the Mint Hash you received from your community leader.
-4. If eligible, you can claim the NFT directly to your wallet with a single click.
-5. After claiming, a link will be generated, allowing you to view the NFT (certificate, award, or ticket) on platforms like OpenSea.
-6. Download your NFT/save to your device. 
+Step 1: Visit the platform and Connect your Metamask Wallet
+Step 2: Locate and click on the “Claim Asset” button in the Hero Section or Menu.
+Step 3: Paste the Mint Hash you received from your community leader/Founder etc.
+Step 4: If eligible, you can claim the NFT directly to your wallet with a single click.
+Step 5: After claiming, a link will be generated, allowing you to view the NFT (courses, certificate, award, or ticket) on platforms like OpenSea.
+Step 6: Congratulations! Download your NFT/Save to your device. 
 
 ## Tools & Technology
 
@@ -97,9 +90,8 @@ MINTIFY addresses the challenges community owners and project leaders face when 
 At its core, MINTIFY leverages blockchain technology to revolutionize the way communities, institutions, and event organizers issue certificates and awards. By minting these credentials as NFTs, Mintify guarantees transparency, immutability, and easy verification for both issuers and recipients.
 
 ## LINKS
-- **UI/UX DESIGN**: [Figma Design](https://www.figma.com/design/xTPmqZA45t5fcQOPk3SFTN/MINTIFY?node-id=0-1&node-type=canvas&t=1X3o43ZND3ytVDkL-0)
+- **UI/UX DESIGN**: (https://www.figma.com/design/apt4FarFoGY5jwnhyluk9w/MINTIFY-(MINTIFY---GEF-HACKATHON)?node-id=0-1&node-type=canvas)
 - **GITHUB**: [GitHub Repository](https://github.com/KoxyG/MinTify/blob/main/frontend/src/pages/Mint/index.js)
-- **FRONT END**: [Mintify Frontend](https://min-tify.vercel.app/)
 - **SMART CONTRACT ADDRESS VERIFIED**: [BaseScan](https://sepolia.basescan.org/address/0x798bb21202a27f0A45806ba3C4D4f87cba3DC259#code)
 - **CODE**: [Code on GitHub](https://github.com/KoxyG/MinTify/blob/main/frontend/src/pages/Mint/index.js)
 
@@ -109,4 +101,4 @@ For more information about Mintify or for support, reach out to us at:
 - **Website**: [Mintify Website](https://min-tify.vercel.app/)
 
 ## Acknowledgments
-We would like to express our heartfelt gratitude to the Base blockchain community and all the developers whose efforts have made blockchain and NFT technology accessible to everyone. Your dedication to innovation and collaboration inspires us as we work on Mintify and strive to empower communities across Africa. Thank you for your invaluable contributions to this evolving space.
+We would like to express our heartfelt gratitude to the blockchain community and all the developers whose efforts have made blockchain and NFT technology accessible to everyone. Your dedication to innovation and collaboration inspires us as we work on Mintify and strive to empower communities across Africa. Thank you for your invaluable contributions to this evolving space.
