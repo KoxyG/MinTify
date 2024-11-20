@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
 import { FileIcon } from "@radix-ui/react-icons";
 import Papa from "papaparse";
-import { pinata } from "@/Constants/pinata";
-import {useConnect, useAccount, useWriteContract} from "wagmi";
+import { pinata } from "../../Constants/pinata";
+
 import { motion } from "framer-motion";
-import { coinbaseWallet } from 'wagmi/connectors';
-import { base, baseSepolia } from 'wagmi/chains';
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { useMintifyContext } from "../../Context/mintifyContext";
 import { X, Check, Copy,  Loader, AlertTriangle } from 'lucide-react'
 import { ToastContainer, toast } from 'react-toastify';
-import { API_URL } from "@/Constants/utils";
+import { API_URL } from "../../Constants/utils";
 
 
 export default function Mint() {
-  const {connectAsync } = useConnect();
+  // const {connectAsync } = useConnect();
   const { address } = useMintifyContext();
-  const { writeContractAsync } = useWriteContract();
+  // const { writeContractAsync } = useWriteContract();
 
 
   const [info, setInfo] = useState("");
@@ -245,59 +243,59 @@ const handleSubmit = async (event) => {
     
     console.log("Updated CSV uploaded to IPFS with URI:", csvUri);
 
-    const data = await writeContractAsync({
-      chainId: baseSepolia.id,
-      address: '0x798bb21202a27f0A45806ba3C4D4f87cba3DC259',
-      functionName: 'createMintify',
-      abi: [{
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_owner",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "merkleRoot",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "string",
-                "name": "CsvCid",
-                "type": "string"
-            }
-        ],
-        "name": "createMintify",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }],
-    args: [
-      address,
-      tag,
-      info,      
-      merkleRoot,
-      csvUri   
-    ],
-    })
+    // const data = await writeContractAsync({
+    //   chainId: baseSepolia.id,
+    //   address: '0x798bb21202a27f0A45806ba3C4D4f87cba3DC259',
+    //   functionName: 'createMintify',
+    //   abi: [{
+    //     "inputs": [
+    //         {
+    //             "internalType": "address",
+    //             "name": "_owner",
+    //             "type": "address"
+    //         },
+    //         {
+    //             "internalType": "string",
+    //             "name": "name",
+    //             "type": "string"
+    //         },
+    //         {
+    //             "internalType": "string",
+    //             "name": "symbol",
+    //             "type": "string"
+    //         },
+    //         {
+    //             "internalType": "bytes32",
+    //             "name": "merkleRoot",
+    //             "type": "bytes32"
+    //         },
+    //         {
+    //             "internalType": "string",
+    //             "name": "CsvCid",
+    //             "type": "string"
+    //         }
+    //     ],
+    //     "name": "createMintify",
+    //     "outputs": [
+    //         {
+    //             "internalType": "address",
+    //             "name": "",
+    //             "type": "address"
+    //         }
+    //     ],
+    //     "stateMutability": "nonpayable",
+    //     "type": "function"
+    // }],
+    // args: [
+    //   address,
+    //   tag,
+    //   info,      
+    //   merkleRoot,
+    //   csvUri   
+    // ],
+    // })
 
-    console.log("data", data)
+    // console.log("data", data)
     setMintHash(data);
     setShowModal(true);
     setCsvFile("");

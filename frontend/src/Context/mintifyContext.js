@@ -2,7 +2,7 @@ import { useAvatar, useName } from '@coinbase/onchainkit/identity';
 import { createContext, useContext } from "react";
 import { baseSepolia } from 'wagmi/chains';
 import { setOnchainKitConfig } from "@coinbase/onchainkit";
-import { useAccount } from "wagmi";
+// import { useAccount } from "wagmi";
 
 const MintifyContext = createContext();
 
@@ -11,20 +11,19 @@ export function useMintifyContext() {
 }
 
 export function MintifyProvider({ children }) {
-  const { address } = useAccount();
+
   const API_KEY = process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY;
-  setOnchainKitConfig({ apiKey: API_KEY });
-  const { data: name, isLoading: nameIsLoading } = useName({ address, chain: baseSepolia });
-  const { data: avatar, isLoading: avatarIsLoading } = useAvatar({ address, chain: baseSepolia });
+  // setOnchainKitConfig({ apiKey: API_KEY });
+  // const { data: name, isLoading: nameIsLoading } = useName({ address, chain: baseSepolia });
+  // const { data: avatar, isLoading: avatarIsLoading } = useAvatar({ address, chain: baseSepolia });
 
   return (
     <MintifyContext.Provider
       value={{
-        name,
-        nameIsLoading,
-        address,
-        avatar,
-        avatarIsLoading,
+        // nameIsLoading,
+        // address,
+        // avatar,
+        // avatarIsLoading,
       }}
     >
       {children}
